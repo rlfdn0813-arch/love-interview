@@ -90,7 +90,7 @@
             bottom: 40px;
         }
 
-        /* --- BGM 플레이어 및 이퀄라이저 스타일 --- */
+        /* --- 새로 추가된 BGM 버튼 및 파도 애니메이션 스타일 --- */
         #bgmBtn {
             width: 3.5rem; 
             height: 3.5rem;
@@ -99,7 +99,7 @@
             position: fixed;
             top: 1.5rem;
             right: 1.5rem;
-            z-index: 100;
+            z-index: 999;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -108,6 +108,7 @@
             backdrop-filter: blur(4px);
             transition: all 0.2s;
             cursor: pointer;
+            border: none;
         }
         #bgmBtn:hover {
             background-color: rgba(71, 85, 105, 1);
@@ -134,20 +135,9 @@
 </head>
 <body class="flex justify-center py-6 px-4">
 
-    <div id="youtube-player" style="display: none;"></div>
-    <button id="bgmBtn">
-        <i data-lucide="play" id="bgmPlayIcon" class="w-6 h-6 ml-1"></i>
-        <div id="bgmWaveIcon" class="hidden flex gap-[4px] items-center justify-center h-full">
-            <div class="eq-bar"></div>
-            <div class="eq-bar"></div>
-            <div class="eq-bar"></div>
-            <div class="eq-bar"></div>
-        </div>
-    </button>
-
     <div id="toast">📋 복사되었습니다!</div>
 
-    <div class="w-full max-w-md clean-card rounded-3xl overflow-hidden relative flex flex-col fade-in mt-10">
+    <div class="w-full max-w-md clean-card rounded-3xl overflow-hidden relative flex flex-col fade-in">
         
         <div class="bg-gradient-to-r from-rose-400 to-orange-300 text-white p-8 text-center relative">
             <div class="relative z-10"> 
@@ -302,8 +292,9 @@
                 </div>
                 <p class="hand-font text-slate-400 text-xs mt-4">"청춘의 한 페이지를 함께 기록해요."</p>
             </div>
+            
         </div> 
-
+        
         <div class="bg-slate-50 border-t border-slate-200 p-6 text-center">
             <div class="flex justify-center gap-3 mb-4">
                 <a href="https://naver.me/x1mjS7zw" target="_blank" class="flex items-center gap-1.5 bg-[#03C75A] text-white px-3 py-1.5 rounded-full text-xs font-bold hover:shadow-md transition-all">
@@ -326,9 +317,26 @@
         </div>
 
     </div> 
+    <div id="youtube-player" style="display: none;"></div>
+    <button id="bgmBtn">
+        <i data-lucide="play" id="bgmPlayIcon" class="w-6 h-6 ml-1 text-white"></i>
+        <div id="bgmWaveIcon" class="hidden flex gap-[4px] items-center justify-center h-full">
+            <div class="eq-bar"></div>
+            <div class="eq-bar"></div>
+            <div class="eq-bar"></div>
+            <div class="eq-bar"></div>
+        </div>
+    </button>
 
     <script>
-        // ★ 앱스스크립트 배포 후 발급받은 URL로 꼭 변경해주세요!
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+            loadYouTubeAPI();
+        });
+
+        // 앱스스크립트 주소 (변경되었다면 수정 필요)
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyXgxqgWrmIurQgIUENqH2TcSZa_gwZm53jY3caH9Y6bdf65v9UO_q5mrr-7939MBbi/exec";
 
         let ytPlayer;
@@ -352,7 +360,7 @@
                         width: '0',
                         videoId: data.youtubeId,
                         playerVars: {
-                            'autoplay': 1, // 자동재생 시도 (브라우저 정책상 막힐 수 있음)
+                            'autoplay': 1, // 자동재생 시도
                             'loop': 1,
                             'playlist': data.youtubeId, 
                             'controls': 0
@@ -370,7 +378,7 @@
 
         function onPlayerReady(event) {
             ytPlayer.setVolume(30);
-            event.target.playVideo(); // 로드 완료 즉시 재생 시도
+            event.target.playVideo(); 
         }
 
         function onPlayerStateChange(event) {
@@ -388,22 +396,13 @@
             }
         }
 
-        // BGM 버튼 클릭 이벤트
         document.getElementById('bgmBtn').addEventListener('click', () => {
             if (!ytPlayer) return; 
-            
             if (isBgmPlaying) {
                 ytPlayer.pauseVideo();
             } else {
                 ytPlayer.playVideo();
             }
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            if (window.lucide) {
-                lucide.createIcons();
-            }
-            loadYouTubeAPI(); // 페이지 로드시 유튜브 API 호출
         });
 
         function showToast(message) {
